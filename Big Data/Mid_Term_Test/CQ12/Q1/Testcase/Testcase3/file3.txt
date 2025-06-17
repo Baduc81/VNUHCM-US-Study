@@ -1,0 +1,28 @@
+t07	headphone
+t07	headphone
+t07	headphone
+t07	headphone
+t07	headphone
+t07	headphone
+t07	headphone
+t08	earphone
+t08	earphone
+t08	earphone
+t08	earphone
+t08	earphone
+t09	tv
+t09	tv
+t09	tv
+t09	tv
+t09	tv
+t10	fan
+t10	fan
+t10	fan
+t10	fan
+t06	washing machine
+t06	washing machine
+t06	washing machine
+t06	washing machine
+t05	roller coaster
+t05	roller coaster
+t05	roller coaster

@@ -1,0 +1,6 @@
+FoodPrice Pizza 12
+FoodPrice Burger 9
+FoodQuantity Burger 4
+FoodPrice Hotdog 5
+FoodQuantity Fries 7
+FoodPrice Sandwich null

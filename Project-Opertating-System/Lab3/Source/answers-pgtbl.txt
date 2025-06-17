@@ -1,0 +1,104 @@
+1. Which other xv6 system call(s) could be made faster using this shared page? Explain how.
+
+Việc sử dụng trang được chia sẻ giữa không gian người dùng và không gian hạt nhân có thể cải thiện hiệu suất cho một số lệnh gọi hệ thống khác trong xv6, 
+đặc biệt là các lệnh gọi có liên quan đến việc lấy dữ liệu từ không gian hạt nhân. Điều này giúp giảm bớt số lần giao thoa vào hạt nhân, 
+vì thay vì thực hiện một cuộc gọi hệ thống tốn kém, tiến trình có thể truy cập trực tiếp dữ liệu trong bộ nhớ chia sẻ. 
+Như getpid(), gettime(), getstats(),…
+
+
+2. For every leaf page in the vmprint output, explain what it logically contains and what its
+permission bits are. Figure 3.4 in the xv6 book might be helpful, although note that the
+figure might have a slightly different set of pages than the init process that's being
+inspected here
+
+* Cấu trúc PTE trên RISC-V (theo sơ đồ bit từ thấp đến cao có dạng)
+0 - 7: các bit cờ hiệu (các bit quyền) (flags)
+8 - 9: các tính năng khác (reserved )
+10 - 53: số trang vật lý (Physical Page Number). Lấy PPN ghép với offset để có địa chỉ vật lý đầy đủ
+54 - 63: chưa dùng hoặc cho các tính năng khác (unused/ reserved)
+
+
+* Cụ thể các bit quyền là
+PTE_V (bit 0) = Hợp lệ (Valid)
+PTE_R (bit 1) = Có thể đọc (Readable)
+PTE_W (bit 2) = Có thể ghi (Writable)
+PTE_X (bit 3) = Có thể thực thi (Executable)
+PTE_U (bit 4) = Quyền cho user (User accessible)
+PTE_G (bit 5) = Global
+PTE_A (bit 6) = Đã truy cập (Accessed)
+PTE_D (bit 7) = Đã bị ghi (Dirty)
+
+* Lý giải leaf page 
+- số nguyên (0, 1, 2, ...): chỉ số của entry trong cấp page table tương ứng
+- pte (Page Table Entry): giá trị 64-bit.
+- pa (Physical Address): là địa chỉ vật lý của trang được ánh xạ
+
+- Các bit quyền của leaf page là
+a. pte 0x0000000021fda01b pa 0x0000000087f68000
+Hex: 0x1B = nhị phân 0001 1011
+    bit 0 = 1 ⇒ V (Valid)
+    bit 1 = 1 ⇒ R (Readable)
+    bit 2 = 0 ⇒ W (Write = 0)
+    bit 3 = 1 ⇒ X (Executable)
+    bit 4 = 1 ⇒ U (User)
+    bit 5..7 = 0 ⇒ không G, A, D
+Ý nghĩa: Đây gần như chắc chắn là trang code user (text).
+
+b. pte 0x0000000021fd9417 pa 0x0000000087f65000
+Hex: 0x17 = nhị phân 0001 0111
+    bit 0 = 1 ⇒ V
+    bit 1 = 1 ⇒ R
+    bit 2 = 1 ⇒ W
+    bit 3 = 0 ⇒ X
+    bit 4 = 1 ⇒ U
+    bit 5..7 = 0
+Ý nghĩa: Đây là trang data user (hoặc .data, .bss, stack user, ...).
+
+c. pte 0x0000000021fd9007 pa 0x0000000087f64000
+Hex: 0x07 = nhị phân 0000 0111
+    bit 0 = 1 ⇒ V
+    bit 1 = 1 ⇒ R
+    bit 2 = 1 ⇒ W
+    bit 3 = 0 ⇒ X
+    bit 4 = 0 ⇒ U=0 (chỉ kernel)
+    bit 5..7 = 0
+Ý nghĩa: Đây là trang kernel (có thể là trang mà kernel dùng, không cho user truy cập).
+
+d. pte 0x0000000021fd8c17 pa 0x0000000087f63000
+Hex: 0x17 (giống ở trên) = nhị phân 0001 0111
+    bit 0 = 1 ⇒ V
+    bit 1 = 1 ⇒ R
+    bit 2 = 1 ⇒ W
+    bit 3 = 0 ⇒ X
+    bit 4 = 1 ⇒ U
+Ý nghĩa: Thêm một trang data user (có thể là heap, stack, hoặc data).
+
+e. pte 0x0000000021fdcc13 pa 0x0000000087f73000
+Hex: 0x13 = nhị phân 0001 0011
+    bit 0 = 1 ⇒ V
+    bit 1 = 1 ⇒ R
+    bit 2 = 0 ⇒ W=0
+    bit 3 = 0 ⇒ X=0
+    bit 4 = 1 ⇒ U=1
+    bit 5..7 = 0
+Ý nghĩa: Trang user read-only (có thể chứa dữ liệu chỉ đọc, hằng số...).
+
+f. pte 0x0000000021fdd007 pa 0x0000000087f74000
+Hex: 0x07 (giống trên) = nhị phân 0000 0111
+    bit 0 = 1 ⇒ V
+    bit 1 = 1 ⇒ R
+    bit 2 = 1 ⇒ W
+    bit 3 = 0 ⇒ X=0
+    bit 4 = 0 ⇒ U=0 (chỉ kernel)
+    bit 5..7 = 0
+Ý nghĩa: Trang dành cho kernel (chỉ kernel truy cập, không user).
+
+g. pte 0x0000000020001c0b pa 0x0000000080007000
+Hex: 0x0B = nhị phân 0000 1011
+    bit 0 = 1 ⇒ V
+    bit 1 = 1 ⇒ R
+    bit 2 = 0 ⇒ W=0
+    bit 3 = 1 ⇒ X=1
+    bit 4 = 0 ⇒ U=0 (kernel)
+    bit 5..7 = 0
+Ý nghĩa: Trang code kernel (thường là kernel text hoặc trang “trampoline”), vì địa chỉ vật lý 0x8000_7000 nằm trong vùng kernel.

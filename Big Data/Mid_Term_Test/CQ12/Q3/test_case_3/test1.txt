@@ -1,0 +1,5 @@
+pc_01	shampoo conditioner soap
+pc_02	soap toothpaste
+pc_03	conditioner mouthwash
+pc_04	shampoo
+pc_05	toothpaste mouthwash

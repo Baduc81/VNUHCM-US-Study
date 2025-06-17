@@ -1,0 +1,3 @@
+FoodPrice Cherry 15
+FoodQuantity Cherry 2
+FoodQuantity Mango 4

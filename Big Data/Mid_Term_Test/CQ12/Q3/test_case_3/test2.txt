@@ -1,0 +1,5 @@
+st_01	pens notebooks pencils
+st_02	notebooks erasers
+st_03	pencils highlighters
+st_04	pens
+st_05	erasers highlighters

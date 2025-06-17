@@ -1,0 +1,5 @@
+p01	apples bananas oranges
+p02	bananas grapes
+p03	apples kiwi
+p04	oranges
+p05	grapes apples

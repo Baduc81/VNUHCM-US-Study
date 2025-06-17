@@ -1,0 +1,7 @@
+FoodQuantity Pizza 6
+FoodQuantity Fish&Chips null
+FoodQuantity null 5
+FoodQuantity Ramen 12.5
+FoodQuantity Sushi 10
+FoodQuantity Burger null
+FoodPrice Sushi 20

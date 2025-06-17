@@ -1,0 +1,3 @@
+python main.py input.txt --minsup 0.5 --total-transactions 7 > output.txt
+
+–minsup 0.5: khong can thiet truyen vao vi da co gia tri mac dinh

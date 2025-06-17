@@ -1,0 +1,5 @@
+d01	milk eggs cheese chicken
+d02	eggs butter
+d03	chicken milk
+d04	cheese beef
+d05	milk butter eggs

@@ -1,0 +1,5 @@
+gd_01	seeds soil fertilizer
+gd_02	soil gardening_gloves
+gd_03	fertilizer watering_can
+gd_04	seeds
+gd_05	gardening_gloves watering_can

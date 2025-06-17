@@ -1,0 +1,8 @@
+t01	resh milk
+t02	whole wheat bread
+t03	cheddar cheese
+t04	butter spread
+t05	organic honey
+t06	green tea
+t04	whole wheat bread
+t02	organic honey

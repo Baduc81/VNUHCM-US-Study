@@ -1,0 +1,3 @@
+FoodQuantity Candy 12
+FoodPrice Milk 5
+FoodQuantity Yogurt 7

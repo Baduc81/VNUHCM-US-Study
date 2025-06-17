@@ -1,0 +1,6 @@
+FoodPrice Laptop 1200
+FoodQuantity Mouse 50
+FoodPrice Keyboard 80
+FoodQuantity Laptop 10
+FoodPrice Monitor 300
+FoodQuantity Headset 30

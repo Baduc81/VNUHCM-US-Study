@@ -1,0 +1,5 @@
+FoodPrice Orange 12
+FoodQuantity Banana 6
+FoodQuantity Grape 8
+FoodPrice Pineapple 9
+ 

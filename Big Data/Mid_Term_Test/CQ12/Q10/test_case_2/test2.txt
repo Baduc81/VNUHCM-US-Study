@@ -1,0 +1,4 @@
+FoodQuantity Chips 8
+FoodPrice Candy 1
+FoodQuantity Juice 15
+FoodPrice Bread 4

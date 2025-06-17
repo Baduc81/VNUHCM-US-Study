@@ -1,0 +1,4 @@
+FoodPrice Pizza 12
+FoodPrice Burger 10
+FoodPrice Sushi 15
+FoodPrice Salad 8

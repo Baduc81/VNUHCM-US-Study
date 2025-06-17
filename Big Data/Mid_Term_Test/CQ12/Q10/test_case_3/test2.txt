@@ -1,0 +1,6 @@
+FoodQuantity Keyboard 25
+FoodPrice Speakers 150
+FoodQuantity Monitor 5
+FoodPrice USB_Drive 20
+FoodQuantity Webcam 15
+FoodPrice Printer 250

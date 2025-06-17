@@ -1,0 +1,6 @@
+FoodQuantity Printer 3
+FoodPrice Mouse 40
+FoodQuantity Router 4
+FoodPrice Tablet 400
+FoodQuantity Tablet 2
+FoodPrice Projector 700

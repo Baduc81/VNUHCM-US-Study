@@ -1,0 +1,5 @@
+t01	laptop mouse headphones
+t02	mouse keyboard
+t03	laptop charger
+t04	headphones
+t05	keyboard mouse

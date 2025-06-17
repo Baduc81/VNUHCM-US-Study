@@ -1,0 +1,5 @@
+pa01	rice pasta sugar salt
+pa02	sugar coffee
+pa03	rice tea
+pa04	pasta salt
+pa05	coffee tea

@@ -1,0 +1,12 @@
+t01	green tea
+t02	fresh milk
+t03	green tea
+t04	green tea
+t05	butter spread
+t06	green tea
+t01	green tea
+t02	fresh milk
+t03	green tea
+t04	green tea
+t05	butter spread
+t06	green tea

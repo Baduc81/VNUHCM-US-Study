@@ -1,0 +1,5 @@
+t01	lamp rug vase
+t02	vase candle
+t03	rug mirror
+t04	lamp
+t05	candle rug

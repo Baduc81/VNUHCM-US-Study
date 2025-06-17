@@ -1,0 +1,6 @@
+t05	apples
+t02	bananas
+t01	oranges
+t03	grapes
+t02	pears
+t01	apples

@@ -1,0 +1,11 @@
+t07	tv
+t05	washing machine
+t05	tv
+t06	fan
+t07	keyboard
+t05	laptop
+t08	roller coaster
+t08	washing machine
+t09	computer mouse
+t10	earphone
+t07	earphone

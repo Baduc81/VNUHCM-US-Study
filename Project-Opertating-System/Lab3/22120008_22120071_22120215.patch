@@ -1,0 +1,356 @@
+diff --git a/answers-pgtbl.txt b/answers-pgtbl.txt
+new file mode 100644
+index 0000000..e263b04
+--- /dev/null
++++ b/answers-pgtbl.txt
+@@ -0,0 +1,104 @@
++1. Which other xv6 system call(s) could be made faster using this shared page? Explain how.
++
++Việc sử dụng trang được chia sẻ giữa không gian người dùng và không gian hạt nhân có thể cải thiện hiệu suất cho một số lệnh gọi hệ thống khác trong xv6, 
++đặc biệt là các lệnh gọi có liên quan đến việc lấy dữ liệu từ không gian hạt nhân. Điều này giúp giảm bớt số lần giao thoa vào hạt nhân, 
++vì thay vì thực hiện một cuộc gọi hệ thống tốn kém, tiến trình có thể truy cập trực tiếp dữ liệu trong bộ nhớ chia sẻ. 
++Như getpid(), gettime(), getstats(),…
++
++
++2. For every leaf page in the vmprint output, explain what it logically contains and what its
++permission bits are. Figure 3.4 in the xv6 book might be helpful, although note that the
++figure might have a slightly different set of pages than the init process that's being
++inspected here
++
++* Cấu trúc PTE trên RISC-V (theo sơ đồ bit từ thấp đến cao có dạng)
++0 - 7: các bit cờ hiệu (các bit quyền) (flags)
++8 - 9: các tính năng khác (reserved )
++10 - 53: số trang vật lý (Physical Page Number). Lấy PPN ghép với offset để có địa chỉ vật lý đầy đủ
++54 - 63: chưa dùng hoặc cho các tính năng khác (unused/ reserved)
++
++
++* Cụ thể các bit quyền là
++PTE_V (bit 0) = Hợp lệ (Valid)
++PTE_R (bit 1) = Có thể đọc (Readable)
++PTE_W (bit 2) = Có thể ghi (Writable)
++PTE_X (bit 3) = Có thể thực thi (Executable)
++PTE_U (bit 4) = Quyền cho user (User accessible)
++PTE_G (bit 5) = Global
++PTE_A (bit 6) = Đã truy cập (Accessed)
++PTE_D (bit 7) = Đã bị ghi (Dirty)
++
++* Lý giải leaf page 
++- số nguyên (0, 1, 2, ...): chỉ số của entry trong cấp page table tương ứng
++- pte (Page Table Entry): giá trị 64-bit.
++- pa (Physical Address): là địa chỉ vật lý của trang được ánh xạ
++
++- Các bit quyền của leaf page là
++a. pte 0x0000000021fda01b pa 0x0000000087f68000
++Hex: 0x1B = nhị phân 0001 1011
++    bit 0 = 1 ⇒ V (Valid)
++    bit 1 = 1 ⇒ R (Readable)
++    bit 2 = 0 ⇒ W (Write = 0)
++    bit 3 = 1 ⇒ X (Executable)
++    bit 4 = 1 ⇒ U (User)
++    bit 5..7 = 0 ⇒ không G, A, D
++Ý nghĩa: Đây gần như chắc chắn là trang code user (text).
++
++b. pte 0x0000000021fd9417 pa 0x0000000087f65000
++Hex: 0x17 = nhị phân 0001 0111
++    bit 0 = 1 ⇒ V
++    bit 1 = 1 ⇒ R
++    bit 2 = 1 ⇒ W
++    bit 3 = 0 ⇒ X
++    bit 4 = 1 ⇒ U
++    bit 5..7 = 0
++Ý nghĩa: Đây là trang data user (hoặc .data, .bss, stack user, ...).
++
++c. pte 0x0000000021fd9007 pa 0x0000000087f64000
++Hex: 0x07 = nhị phân 0000 0111
++    bit 0 = 1 ⇒ V
++    bit 1 = 1 ⇒ R
++    bit 2 = 1 ⇒ W
++    bit 3 = 0 ⇒ X
++    bit 4 = 0 ⇒ U=0 (chỉ kernel)
++    bit 5..7 = 0
++Ý nghĩa: Đây là trang kernel (có thể là trang mà kernel dùng, không cho user truy cập).
++
++d. pte 0x0000000021fd8c17 pa 0x0000000087f63000
++Hex: 0x17 (giống ở trên) = nhị phân 0001 0111
++    bit 0 = 1 ⇒ V
++    bit 1 = 1 ⇒ R
++    bit 2 = 1 ⇒ W
++    bit 3 = 0 ⇒ X
++    bit 4 = 1 ⇒ U
++Ý nghĩa: Thêm một trang data user (có thể là heap, stack, hoặc data).
++
++e. pte 0x0000000021fdcc13 pa 0x0000000087f73000
++Hex: 0x13 = nhị phân 0001 0011
++    bit 0 = 1 ⇒ V
++    bit 1 = 1 ⇒ R
++    bit 2 = 0 ⇒ W=0
++    bit 3 = 0 ⇒ X=0
++    bit 4 = 1 ⇒ U=1
++    bit 5..7 = 0
++Ý nghĩa: Trang user read-only (có thể chứa dữ liệu chỉ đọc, hằng số...).
++
++f. pte 0x0000000021fdd007 pa 0x0000000087f74000
++Hex: 0x07 (giống trên) = nhị phân 0000 0111
++    bit 0 = 1 ⇒ V
++    bit 1 = 1 ⇒ R
++    bit 2 = 1 ⇒ W
++    bit 3 = 0 ⇒ X=0
++    bit 4 = 0 ⇒ U=0 (chỉ kernel)
++    bit 5..7 = 0
++Ý nghĩa: Trang dành cho kernel (chỉ kernel truy cập, không user).
++
++g. pte 0x0000000020001c0b pa 0x0000000080007000
++Hex: 0x0B = nhị phân 0000 1011
++    bit 0 = 1 ⇒ V
++    bit 1 = 1 ⇒ R
++    bit 2 = 0 ⇒ W=0
++    bit 3 = 1 ⇒ X=1
++    bit 4 = 0 ⇒ U=0 (kernel)
++    bit 5..7 = 0
++Ý nghĩa: Trang code kernel (thường là kernel text hoặc trang “trampoline”), vì địa chỉ vật lý 0x8000_7000 nằm trong vùng kernel.
+\ No newline at end of file
+diff --git a/grade-lab-pgtbl b/grade-lab-pgtbl
+old mode 100644
+new mode 100755
+diff --git a/kernel/defs.h b/kernel/defs.h
+index a3c962b..87b8681 100644
+--- a/kernel/defs.h
++++ b/kernel/defs.h
+@@ -173,6 +173,10 @@ uint64          walkaddr(pagetable_t, uint64);
+ int             copyout(pagetable_t, uint64, char *, uint64);
+ int             copyin(pagetable_t, char *, uint64, uint64);
+ int             copyinstr(pagetable_t, char *, uint64, uint64);
++// #define LAB_PGTBL
++#if defined(LAB_PGTBL) || defined(SOL_MMAP)
++void            vmprint(pagetable_t);
++#endif
+ 
+ // plic.c
+ void            plicinit(void);
+diff --git a/kernel/exec.c b/kernel/exec.c
+index e18bbb6..d993143 100644
+--- a/kernel/exec.c
++++ b/kernel/exec.c
+@@ -128,6 +128,7 @@ exec(char *path, char **argv)
+   p->trapframe->sp = sp; // initial stack pointer
+   proc_freepagetable(oldpagetable, oldsz);
+ 
++  if (p->pid == 1) vmprint(p->pagetable);
+   return argc; // this ends up in a0, the first argument to main(argc, argv)
+ 
+  bad:
+diff --git a/kernel/proc.c b/kernel/proc.c
+index 58a8a0b..5ca0d4c 100644
+--- a/kernel/proc.c
++++ b/kernel/proc.c
+@@ -131,7 +131,13 @@ found:
+     release(&p->lock);
+     return 0;
+   }
+-
++  // Allocate a usyscall page.
++  if((p->usyscall = (struct usyscall *)kalloc()) == 0){
++    freeproc(p);
++    release(&p->lock);
++    return 0;
++  }
++  p->usyscall->pid =  p->pid ; 
+   // An empty user page table.
+   p->pagetable = proc_pagetable(p);
+   if(p->pagetable == 0){
+@@ -155,9 +161,17 @@ found:
+ static void
+ freeproc(struct proc *p)
+ {
++  // if(p->usyscall)
++  //   kfree((void*)p->usyscall);
++  // p->usyscall = 0;
+   if(p->trapframe)
+     kfree((void*)p->trapframe);
+   p->trapframe = 0;
++
++  if(p->usyscall)
++    kfree((void*)p->usyscall);
++  p->usyscall = 0;
++
+   if(p->pagetable)
+     proc_freepagetable(p->pagetable, p->sz);
+   p->pagetable = 0;
+@@ -169,6 +183,7 @@ freeproc(struct proc *p)
+   p->killed = 0;
+   p->xstate = 0;
+   p->state = UNUSED;
++  // return 0;
+ }
+ 
+ // Create a user page table for a given process, with no user memory,
+@@ -201,6 +216,14 @@ proc_pagetable(struct proc *p)
+     uvmfree(pagetable, 0);
+     return 0;
+   }
++  // map the usyscall page just below the trampoline page, for
++  // memlayout.h
++  if(mappages(pagetable, USYSCALL, PGSIZE,
++            (uint64)(p->usyscall),PTE_R | PTE_U) < 0){
++    // uvmunmap(pagetable, TRAMPOLINE, 1, 0);
++    uvmfree(pagetable, 0);
++    return 0;
++  }
+ 
+   return pagetable;
+ }
+@@ -212,6 +235,7 @@ proc_freepagetable(pagetable_t pagetable, uint64 sz)
+ {
+   uvmunmap(pagetable, TRAMPOLINE, 1, 0);
+   uvmunmap(pagetable, TRAPFRAME, 1, 0);
++  uvmunmap(pagetable, USYSCALL, 1, 0);
+   uvmfree(pagetable, sz);
+ }
+ 
+diff --git a/kernel/proc.h b/kernel/proc.h
+index d021857..03d1a91 100644
+--- a/kernel/proc.h
++++ b/kernel/proc.h
+@@ -104,4 +104,5 @@ struct proc {
+   struct file *ofile[NOFILE];  // Open files
+   struct inode *cwd;           // Current directory
+   char name[16];               // Process name (debugging)
++  struct usyscall *usyscall;
+ };
+diff --git a/kernel/riscv.h b/kernel/riscv.h
+index 20a01db..8a6d880 100644
+--- a/kernel/riscv.h
++++ b/kernel/riscv.h
+@@ -343,6 +343,7 @@ typedef uint64 *pagetable_t; // 512 PTEs
+ #define PTE_W (1L << 2)
+ #define PTE_X (1L << 3)
+ #define PTE_U (1L << 4) // user can access
++#define PTE_A (1L << 6) // 1: page accessed
+ 
+ // shift a physical address to the right place for a PTE.
+ #define PA2PTE(pa) ((((uint64)pa) >> 12) << 10)
+diff --git a/kernel/sysproc.c b/kernel/sysproc.c
+index 88644b2..ce2b9b4 100644
+--- a/kernel/sysproc.c
++++ b/kernel/sysproc.c
+@@ -69,12 +69,44 @@ sys_sleep(void)
+   return 0;
+ }
+ 
+-
+ #ifdef LAB_PGTBL
+-int
++uint64
+ sys_pgaccess(void)
+ {
+-  // lab pgtbl: your code here.
++  int num_pages;
++  uint64 start_va;
++  uint64 buffer_addr;
++
++  argaddr(0, &start_va);
++  argint(1, &num_pages);
++  argaddr(2, &buffer_addr);
++
++  // Validate the number of pages
++  if (num_pages <= 0 || num_pages > 32) {
++    return -1; // Limit to 32 pages (adjust as needed)
++  }
++
++  uint64 buf = 0; // Initialize buffer to 0
++  struct proc *p = myproc(); // Get current process
++
++  for (int i = 0; i < num_pages; i++) {
++    uint64 va = (uint64)(start_va + i * PGSIZE); // Cast to uint64
++    pte_t *pte = walk(p->pagetable, va, 0);
++
++    if (!pte || !(*pte & PTE_V)) {
++      continue; // Invalid page, skip
++    }
++
++    if (*pte & PTE_A) {
++        buf |= (1ULL << i); // Set the corresponding bit in the buffer if page is accessed
++        *pte &= ~PTE_A; // Clear the access bit
++    }
++  }
++
++  if (copyout(p->pagetable, buffer_addr, (char *)&buf, sizeof(buf)) < 0) { // Cast buffer_addr to uint64
++      return -1;
++  }
++
+   return 0;
+ }
+ #endif
+diff --git a/kernel/vm.c b/kernel/vm.c
+index 5c31e87..5a52732 100644
+--- a/kernel/vm.c
++++ b/kernel/vm.c
+@@ -449,3 +449,35 @@ copyinstr(pagetable_t pagetable, char *dst, uint64 srcva, uint64 max)
+     return -1;
+   }
+ }
++
++#ifdef LAB_PGTBL
++void
++vmprint_helper(pagetable_t pagetable, uint64 deepv) {
++  // your code here
++  // In ra địa chỉ bảng trang ở cấp độ cao nhất.
++  if (deepv == 0){
++    printf("page table %p\n", (void*)pagetable);
++  }
++
++  for(int i = 0; i < 512; i++){
++    pte_t pte = pagetable[i];
++    if(pte & PTE_V) {   // Kiểm tra nếu PTE hợp lệ.
++      for (int j = 0; j <= deepv; j++){
++        printf("..");
++      }
++      printf("%d: pte %p pa %p\n", i, (void*)pte, (void*)PTE2PA(pte));
++
++      // Kiểm tra nếu PTE trỏ đến bảng trang cấp thấp hơn
++      if ((pte & PTE_V) && (pte & (PTE_R|PTE_W|PTE_X)) == 0){
++        // Lấy địa chỉ bảng trang cấp thấp hơn.
++        uint64 child = PTE2PA(pte);
++        vmprint_helper((pagetable_t)child, deepv + 1);
++      } 
++    }
++  }
++}
++
++void vmprint(pagetable_t pagetable) {
++  vmprint_helper(pagetable, 0);
++}
++#endif
+\ No newline at end of file
+diff --git a/time.txt b/time.txt
+new file mode 100644
+index 0000000..2edeafb
+--- /dev/null
++++ b/time.txt
+@@ -0,0 +1 @@
++20
+\ No newline at end of file
+
+Ý tưởng chính
+Mục tiêu: Tối ưu hóa hệ thống bằng cách giảm số lần gọi vào nhân (kernel crossings) khi thực hiện một số lệnh hệ thống (ở đây là getpid()).
+Cách làm:
+Tạo một trang bộ nhớ chỉ đọc nằm trong vùng không gian người dùng (userspace), gọi là USYSCALL, để chứa thông tin cần thiết (ở đây là PID của tiến trình).
+Lưu thông tin PID vào một cấu trúc dữ liệu (struct usyscall) trong trang này khi tiến trình được tạo.
+Ánh xạ (map) trang này vào bảng trang của tiến trình để có thể truy cập từ chế độ người dùng mà không cần gọi vào nhân.
+--------------------------
+Cấp phát bộ nhớ cho usyscall khi tạo tiến trình (allocproc()).
+Gán giá trị PID cho p->usyscall->pid.
+Ánh xạ trang USYSCALL vào bảng trang của tiến trình (proc_pagetable()).
+Giải phóng bộ nhớ usyscall khi hủy tiến trình (freeproc()).
+Hủy ánh xạ trang USYSCALL khi giải phóng bảng trang (proc_freepagetable()).
+
+------------------------------
+Lấy tham số: Dùng argaddr và argint để lấy start_va, num_pages, và buffer_addr.
+Kiểm tra số lượng trang: Giới hạn số trang từ 1–32.
+Duyệt qua các trang:
+Tính địa chỉ ảo của từng trang.
+Lấy PTE từ bảng trang.
+Kiểm tra bit PTE_A:
+Nếu được set, cập nhật buf.
+Sau đó, xóa bit PTE_A.
+Sao chép kết quả: Dùng copyout() để gửi bitmask về userspace.

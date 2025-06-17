@@ -1,0 +1,5 @@
+t01	shirt pants socks
+t02	socks hat
+t03	pants belt
+t04	shirt
+t05	hat socks

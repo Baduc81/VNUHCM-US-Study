@@ -1,0 +1,4 @@
+FoodPrice Soda 2
+FoodQuantity Soda 10
+FoodPrice Chips 3
+FoodQuantity Water 20

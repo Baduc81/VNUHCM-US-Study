@@ -1,0 +1,7 @@
+FoodPrice Pizza 12.5
+FoodPrice Burger 9
+FoodPrice null 20
+FoodPrice Fish&Chips 15
+FoodPrice Noodle 18
+FoodPrice Pizza 11
+FoodQuantity Taco 4

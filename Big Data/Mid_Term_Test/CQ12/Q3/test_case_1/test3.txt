@@ -1,0 +1,5 @@
+s01	chips soda cookies
+s02	soda water
+s03	cookies juice
+s04	water chips
+s05	juice

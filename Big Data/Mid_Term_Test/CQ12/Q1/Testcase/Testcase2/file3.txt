@@ -1,0 +1,8 @@
+t04	fresh milk
+t03	whole wheat bread
+t01	cheddar cheese
+t06	butter spread
+t01	organic eggs
+t03	black tea
+t01	black tea
+t02	black tea
